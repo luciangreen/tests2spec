@@ -5,7 +5,8 @@
 %?- infer([[1,2]-[3,2], [5]-[6]], S).              % S = comp(reverse, inc): reverse after adding 1
 %?- infer([[1,2]-7], S).                           % S = none
 %?- apply_spec(comp(sum, double), [1,2,3], O).    % O = 12
-:- module(tests2spec, [prim/3, apply_spec/3, spec/1, size/2, infer/2, consistent/2]).
+%?- infer_all([[2]-[2]], L).                      % L = [prim(identity), prim(reverse), prim(msort), prim(dedupe), prim(evens)]: not decided yet
+:- module(tests2spec, [infer_all/2, prim/3, apply_spec/3, spec/1, size/2, infer/2, consistent/2]).
 :- use_module(library(lists)).
 :- use_module(library(apply)).
 
@@ -38,3 +39,8 @@ consistent(S, Tests) :- forall(member(I-O, Tests), apply_spec(S, I, O)).
 
 % infer(+Tests, -Spec): the first (smallest) spec that passes every test, or none.
 infer(Tests, S) :- ( spec(S0), consistent(S0, Tests) -> S = S0 ; S = none ).
+
+% infer_all(+Tests, -Specs): every smallest spec that passes every test, in order (infer/2 gives the first).
+% More than one means the tests do not decide the function yet: [2]-[2] fits identity, reverse, msort, dedupe
+% and evens, and tests such as [2,1]-[1,2] and [1]-[1] narrow them down.
+infer_all(Tests, Ss) :- ( infer(Tests, S1), S1 \== none -> size(S1, N), findall(S, ( spec(S), size(S, N), consistent(S, Tests) ), Ss) ; Ss = [] ).

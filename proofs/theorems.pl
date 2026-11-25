@@ -28,3 +28,11 @@ theorem(none_means_no_spec) :-
 
 % 5. infer is steadfast.
 theorem(infer_is_steadfast) :- forall(( spec(S), all_tests(S, Ts), spec(G), size(G, 1) ), iff(infer(Ts, G), ( infer(Ts, R), R == G ))).
+
+% 6. infer_all lists exactly the smallest passing specs, starting with infer's answer, and with every input as a
+%    test, all of them compute the same function as the true one.
+theorem(infer_all_is_the_smallest_fits) :-
+    forall(( spec(S), all_tests(S, Ts), infer(Ts, R), infer_all(Ts, L) ), ( L = [R|_], size(R, N),
+        forall(member(Q, L), ( size(Q, N), consistent(Q, Ts) )), forall(( spec(Q), size(Q, N), consistent(Q, Ts) ), memberchk(Q, L)),
+        forall(( member(Q, L), input(I) ), ( apply_spec(S, I, A), apply_spec(Q, I, B), A == B )) )),
+    infer_all([[2]-[2]], [prim(identity), prim(reverse), prim(msort), prim(dedupe), prim(evens)]).

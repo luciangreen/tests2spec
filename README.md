@@ -10,17 +10,19 @@ infer a spec from test cases. Given Input-Output tests, it finds the simplest fu
 ?- infer([[1,2]-[3,2], [5]-[6]], S).              % S = comp(reverse, inc): reverse after adding 1
 ?- infer([[1,2]-7], S).                           % S = none
 ?- apply_spec(comp(sum, double), [1,2,3], O).    % O = 12
+?- infer_all([[2]-[2]], L).                      % L = [prim(identity), prim(reverse), prim(msort), prim(dedupe), prim(evens)]: not decided yet
 ```
 
 ## Proofs
 
-`proofs/theorems.pl` proves 5 theorems by exhaustion: each one is checked for every case in a finite domain that covers every branch of the definitions. every spec; every list of length 0..3 over 0..2 as an input.
+`proofs/theorems.pl` proves 6 theorems by exhaustion: each one is checked for every case in a finite domain that covers every branch of the definitions. every spec; every list of length 0..3 over 0..2 as an input.
 
 1. The inferred spec passes every test.
 2. It is a smallest one: no smaller spec passes every test.
 3. With every input as a test, the inferred spec is the same function as the true one on the whole domain.
 4. none means no spec in the space passes.
 5. infer is steadfast.
+6. infer_all lists exactly the smallest passing specs, starting with infer's answer; more than one means the tests do not decide the function yet.
 
 ```sh
 swipl -g main -t halt proofs/theorems.pl
